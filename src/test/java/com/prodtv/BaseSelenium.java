@@ -22,7 +22,7 @@ public class BaseSelenium {
 
     //Conexión con Chrome
     public WebDriver chromeDriverConnection() {
-        System.setProperty("webdriver.chrome.driver", "drivers/ChromeVersion78/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "drivers/macos/chromedriver");
         ChromeOptions options = new ChromeOptions();
 
         //Navegador Headless

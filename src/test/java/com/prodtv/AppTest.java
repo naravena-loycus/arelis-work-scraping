@@ -10,10 +10,14 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
 
 
+import java.io.File;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -31,12 +35,12 @@ public class AppTest
 
     @BeforeTest
     public void setUpClass(){
-        System.setProperty("webdriver.chrome.driver", "drivers/ChromeVersion78/chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-
+        System.setProperty("webdriver.chrome.driver", "drivers/macos/chromedriver");
+        ChromeOptions options= new ChromeOptions();
         //Navegador Headless
-        //options.addArguments("--headless");
-        options.addArguments("start-maximized");
+        options.addArguments("--headless");
+        //options.addExtensions(new File("drivers/macos/AdBlock.crx"));
+        //options.addArguments("--start-maximized");
         driver= new ChromeDriver(options);
         driver.get("https://empresite.eleconomista.es/Actividad/PRODUCCION-TV/provincia/MADRID/");
         //---
@@ -48,12 +52,11 @@ public class AppTest
     public void a() throws InterruptedException {
 
         By olLabels= By.xpath("//ol/li");
-        By txtTitle= By.xpath("//ol/li[1]/article/div/div/div/a");
         By email=By.xpath("//span[@class='email'][1]");
 
 
         List<WebElement> ol=driver.findElements(olLabels);
-        // driver.findElement(txtTitle).click();
+
 
         /**
          * Rigorous Test :-)
@@ -61,18 +64,19 @@ public class AppTest
          */
 
         for (int i = 1; i <= 30; i++) {
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS) ;
             WebElement a = driver.findElement(By.xpath("//ol/li[" + i + "]/article/div[4]/button[1]"));
 
-            Thread.sleep(5000);
 
             By l= By.xpath("//ol/li["+ i +"]/article/div/div/div/a");
             String titleBiz = driver.findElement(l).getText();
-            // System.out.println(i + ": "+ titleBiz);
+
             Actions actions = new Actions(driver);
 
             actions.moveToElement(a).click().perform();
+
             a.click();
-            Thread.sleep(5000);
+
             String emaail = null;
             try {
                 emaail = driver.findElement(email).getText();
@@ -90,17 +94,13 @@ public class AppTest
     public void shouldAnswerWithTrue() throws InterruptedException {
 
         List<WebElement> num=driver.findElements(By.xpath("//div[6]/ul/li"));
-        Thread.sleep(6000);
+        Thread.sleep(1000);
         for (int i = 2; i <= num.size(); i++) {
-            WebElement a = driver.findElement(By.xpath("//div[6]/ul/li["+i+"]"));
+            WebElement b = driver.findElement(By.xpath("//div[6]/ul/li["+i+"]"));
             a();
-            Actions actions = new Actions(driver);
-
-            actions.moveToElement(a).click().perform();
-            Thread.sleep(6000);
-            a.click();
-            Thread.sleep(6000);
-            driver.navigate().back();
+            Thread.sleep(1000);
+            driver.navigate().to("https://empresite.eleconomista.es/Actividad/PRODUCCION-TV/provincia/MADRID/PgNum-"+i+"/");
+            Thread.sleep(1000);
         }
 
     }
