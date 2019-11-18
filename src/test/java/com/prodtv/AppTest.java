@@ -16,6 +16,7 @@ import org.testng.annotations.*;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -26,12 +27,11 @@ import java.util.concurrent.TimeUnit;
 public class AppTest 
 {
     private WebDriver driver;
+    private WriteExcelFile writeFile= new WriteExcelFile();
+    private ReadExcelFile readFile= new ReadExcelFile();
+    String filepath = "docs/arelis-work.xlsx";
 
 
-
-    public void pageclick (){
-
-    }
 
     @BeforeTest
     public void setUpClass(){
@@ -49,19 +49,11 @@ public class AppTest
     }
 
 
-    public void a() throws InterruptedException {
-
+    public void a() throws InterruptedException, IOException {
+        Thread.sleep(5000);
         By olLabels= By.xpath("//ol/li");
         By email=By.xpath("//span[@class='email'][1]");
-
-
         List<WebElement> ol=driver.findElements(olLabels);
-
-
-        /**
-         * Rigorous Test :-)
-         *
-         */
 
         for (int i = 1; i <= 30; i++) {
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS) ;
@@ -70,28 +62,44 @@ public class AppTest
 
             By l= By.xpath("//ol/li["+ i +"]/article/div/div/div/a");
             String titleBiz = driver.findElement(l).getText();
+            System.out.println(titleBiz);
 
             Actions actions = new Actions(driver);
 
             actions.moveToElement(a).click().perform();
+            readFile.readExcel(filepath,"Hoja1");
+
+
+
+
+            //writeFile.writeCellValue(filepath,"Hoja1", 1, 0, titleBiz);
+            //readFile.readExcel(filepath,"Hoja1");
 
             a.click();
 
-            String emaail = null;
-            try {
-                emaail = driver.findElement(email).getText();
-            }catch (NoSuchElementException e){
-                emaail ="No encontrado";
-            }
-            System.out.println(i+". Empresa:  "+titleBiz+ "\n Email:  "+emaail);
+            getEmail(email);
+
+            Thread.sleep(5000);
+
+            System.out.println(i+". Empresa:  "+titleBiz+ "\n Email:  "+getEmail(email));
 
             driver.navigate().back();
         }
     }
 
+    private String getEmail(By email) {
+        String s = null;
+        try {
+            s = driver.findElement(email).getText();
+        }catch (NoSuchElementException e){
+            s ="No encontrado";
+        }
+        return s;
+    }
+
 
     @Test
-    public void shouldAnswerWithTrue() throws InterruptedException {
+    public void shouldAnswerWithTrue() throws InterruptedException, IOException {
 
         List<WebElement> num=driver.findElements(By.xpath("//div[6]/ul/li"));
         Thread.sleep(1000);
