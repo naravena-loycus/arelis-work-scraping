@@ -39,14 +39,14 @@ public class AppTest
 
     @BeforeTest
     public void setUpClass(){
-        System.setProperty("webdriver.chrome.driver", "drivers/windows/ChromeVersion78/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "drivers/macos/chromedriver");
         ChromeOptions options= new ChromeOptions();
         //Navegador Headless
         options.addArguments("--headless");
         //options.addExtensions(new File("drivers/macos/AdBlock.crx"));
-       // options.addArguments("--start-maximized");
+       //options.addArguments("--start-maximized");
         driver= new ChromeDriver(options);
-        driver.get("https://empresite.eleconomista.es/Actividad/PRODUCCION-TV/provincia/MADRID/");
+        driver.get("https://empresite.eleconomista.es/Actividad/PRODUCCION-TV/provincia/MADRID/PgNum-20/");
 
         //---
 
@@ -62,15 +62,17 @@ public class AppTest
     }
 
     private void writeLineInFile(String s) throws IOException {
-
-        try(FileWriter fw = new FileWriter("docs/arelisWork.txt", true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            PrintWriter out = new PrintWriter(bw))
-        {
-            out.println(s);
-        } catch (IOException e) {
-            System.out.println("algo va mal");
-        }
+                String ruta = "docs/arelis-work.txt";
+                File archivo = new File(ruta);
+                BufferedWriter bw;
+                if(archivo.exists()) {
+                    bw = new BufferedWriter(new FileWriter(archivo));
+                    bw.write(s);
+                } else {
+                    bw = new BufferedWriter(new FileWriter(archivo));
+                    bw.write("Acabo de crear el fichero de texto.");
+                }
+                bw.close();
 
     }
 
@@ -80,13 +82,20 @@ public class AppTest
         WebDriverWait WAIT = new WebDriverWait(driver,wait);
 
         for (int i = 1; i <= 30; i++) {
-
-
+            Thread.sleep(5000);
             WebElement btnVerEmpresa = driver.findElement(By.xpath("//ol/li[" + i + "]/article/div[4]/button[1]"));
-            WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//ol/li[" + i + "]/article/div[4]/button[1]")));
-
+            try {
+                WAIT.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//ol/li[" + i + "]/article/div[4]/button[1]")));
+            }catch (StaleElementReferenceException e){
+                System.out.println("No encontrado");
+            }
             By l= By.xpath("//ol/li["+ i +"]/article/div/div/div/a");
-            WAIT.until(ExpectedConditions.presenceOfElementLocated(l));
+            try {
+                WAIT.until(ExpectedConditions.presenceOfElementLocated(l));
+
+
+            //WAIT.until(ExpectedConditions.presenceOfElementLocated(l));
+
             String titleBiz = driver.findElement(l).getText();
 
             Actions actions = new Actions(driver);
@@ -97,9 +106,12 @@ public class AppTest
 
             if(getEmail(email) != null) {
                     String line = n++ + ". Empresa:  " + titleBiz + "\t\t|\t Email:  " + getEmail(email);
-                    writeLineInFile(line);
+                   // writeLineInFile(line);
+                System.out.println(line);
             }
-
+        }catch (StaleElementReferenceException e){
+            System.out.println("No encontrado" + e.getCause());
+        }
             driver.navigate().back();
         }
     }
@@ -108,9 +120,10 @@ public class AppTest
     @Test
     public void principalTest() throws InterruptedException, IOException {
         List<WebElement> num=driver.findElements(By.xpath("//div[6]/ul/li"));
-        for (int i = 2; i <= num.size(); i++) {
+        for (int i = 16; i <= num.size(); i++) {
             scrapingWebBiz();
             Thread.sleep(5000);
+            System.out.println("pag "+i);
             driver.navigate().to("https://empresite.eleconomista.es/Actividad/PRODUCCION-TV/provincia/MADRID/PgNum-"+i+"/");
             Thread.sleep(5000);
         }
